@@ -3,6 +3,7 @@ class sequenceData():
     def __init__(self, filePath, teardown=False):
         self.filePath = filePath    # fastq.rtf file location
         self.teardown = teardown    # teardown flag 
+        self.usableReadsExecuted = False
 
     def __exit__(self):
         if self.teardown:
@@ -13,6 +14,9 @@ class sequenceData():
         self.fastaqFile = open(self.filePath, 'r').readlines()[7:]
     
     def usableReads(self, lowestQualScore=50, thresholdAverageScore=68):
+        self.usableReadsExecuted = True
+        self.lowestQualScore = lowestQualScore
+        self.thresholdAverageScore = thresholdAverageScore
         # Determine number of usable reads based on predefine thresholds
         asciiFlag = False
         numberUsableReads = 0
@@ -47,11 +51,35 @@ class sequenceData():
 
             # Read Analysis to determine if min requirements are met
             if (tooLowScore == False) & (averageScore > thresholdAverageScore):
-                numberUsableReads += 1  
+                numberUsableReads += 1
+
+        self.numberUsableReads = numberUsableReads
+        self.readsCounter = readsCounter  
         
         # Output Results
-        print(f"Number of reads that meet quality requirements: {numberUsableReads}")
-        print(f"Reads analyzed: {readsCounter}")
+        #print(f"Number of reads that meet quality requirements: {numberUsableReads}")
+        #print(f"Reads analyzed: {readsCounter}")
+    
+    def generateReport(self):
+        # Generate a report based on the analysis performed on the loaded sequencing data
+        print("\n")
+        print("##### REPORT #####")
+        print("------------------")
+        if self.usableReadsExecuted:
+            # Output Results
+            print("# USABLE READS REPORT: ")
+            print("User input thresholds: ")
+            print(f"Highest Quality Score Not Admissible: {self.lowestQualScore}")
+            print(f"Highest Average Score Not Admissible: {self.thresholdAverageScore}")
+            print("-------------------------------------------------------")
+            print("Results obtained: ")
+            print(f"Number of reads that meet quality requirements: {self.numberUsableReads}")
+            print(f"Reads analyzed: {self.readsCounter}")
+            print(f"Percentage of admissible reads: {self.numberUsableReads/self.readsCounter*100}%")
+        print("\n")
+        print("###################")
+        print("\n")
+
 
         
 
