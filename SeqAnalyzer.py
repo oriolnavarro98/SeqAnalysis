@@ -52,21 +52,57 @@ class sequenceData():
             # Read Analysis to determine if min requirements are met
             if (tooLowScore == False) & (averageScore > thresholdAverageScore):
                 numberUsableReads += 1
-
-        self.numberUsableReads = numberUsableReads
-        self.readsCounter = readsCounter  
         
-        # Output Results
-        #print(f"Number of reads that meet quality requirements: {numberUsableReads}")
-        #print(f"Reads analyzed: {readsCounter}")
+        # Output results
+        self.numberUsableReads = numberUsableReads
+        self.readsCounter = readsCounter
+    
+    def GCContent(self):
+        self.GCContentExecuted = True
+
+        seqFlag = False
+        runningLength = 0
+        totalCCount = 0
+        totalGCount = 0
+
+        for line in self.fastaqFile:
+            if "length" in line:
+                # Extract length of the read
+                readLength = line.split("length=")[-1]
+                readLength = int(readLength.split("\\")[0])
+                SeqFlag = True
+            elif SeqFlag:
+                # Analyze read
+                indRead = line[:readLength]
+                indCCount = indRead.count('C')  # Count number of Cs
+                indGCount = indRead.count('G')  # Count number of Gs
+                totalCCount += indCCount
+                totalGCount += indGCount
+                runningLength += readLength
+                SeqFlag = False
+            else:
+                continue
+        
+        # Calculate total GC Content % and Output Result
+        self.runningLenth = runningLength
+        self.totalCCount = totalCCount
+        self.totalGCount = totalGCount
+        self.totalGCContent = (totalCCount + totalGCount)/runningLength
+
+    def SequencePresenceTest(self):
+        pass
+
     
     def generateReport(self):
         # Generate a report based on the analysis performed on the loaded sequencing data
         print("\n")
         print("##### REPORT #####")
-        print("------------------")
+        #print(f"Date: {}")
+        
         if self.usableReadsExecuted:
             # Output Results
+            print("\n")
+            print("------------------")
             print("# USABLE READS REPORT: ")
             print("User input thresholds: ")
             print(f"Highest Quality Score Not Admissible: {self.lowestQualScore}")
@@ -76,6 +112,20 @@ class sequenceData():
             print(f"Number of reads that meet quality requirements: {self.numberUsableReads}")
             print(f"Reads analyzed: {self.readsCounter}")
             print(f"Percentage of admissible reads: {self.numberUsableReads/self.readsCounter*100}%")
+        
+        if self.GCContentExecuted:
+            # Output Results
+            print("\n")
+            print("------------------")
+            print("# GC CONTENT REPORT: ")
+            print("-------------------------------------------------------")
+            print("Results obtained: ")
+            print(f"Total number of bases: {self.runningLenth}")
+            print(f"Total number of C bases: {self.totalCCount}")
+            print(f"Total number of G bases: {self.totalGCount}")
+            print(f"GC Content Percentage: {self.totalGCContent*100}%")
+            print(f"Total GC Content: {self.totalCCount + self.totalGCount} / {self.runningLenth}")
+
         print("\n")
         print("###################")
         print("\n")
