@@ -1,9 +1,11 @@
+import datetime
 
 class sequenceData():
     def __init__(self, filePath, teardown=False):
         self.filePath = filePath    # fastq.rtf file location
         self.teardown = teardown    # teardown flag 
         self.usableReadsExecuted = False
+        self.currentTime = datetime.datetime.now()
 
     def __exit__(self):
         if self.teardown:
@@ -12,6 +14,7 @@ class sequenceData():
     def loadFile(self):
         # Load file
         self.fastaqFile = open(self.filePath, 'r').readlines()[7:]
+        self.fileName = self.filePath.split('/')[-1]
     
     def usableReads(self, lowestQualScore=50, thresholdAverageScore=68):
         self.usableReadsExecuted = True
@@ -97,7 +100,8 @@ class sequenceData():
         # Generate a report based on the analysis performed on the loaded sequencing data
         print("\n")
         print("##### REPORT #####")
-        #print(f"Date: {}")
+        print(f"- Date: {self.currentTime}")
+        print(f"- File Name: {self.fileName}")
         
         if self.usableReadsExecuted:
             # Output Results
