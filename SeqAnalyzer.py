@@ -6,15 +6,12 @@ class sequenceData():
         self.teardown = teardown    # teardown flag 
         self.usableReadsExecuted = False
         self.currentTime = datetime.datetime.now()
+        self.fastaqFile = open(self.filePath, 'r').readlines()[7:]
+        self.fileName = self.filePath.split('/')[-1]
 
     def __exit__(self):
         if self.teardown:
             self.quit()
-
-    def loadFile(self):
-        # Load file
-        self.fastaqFile = open(self.filePath, 'r').readlines()[7:]
-        self.fileName = self.filePath.split('/')[-1]
     
     def usableReads(self, lowestQualScore=50, thresholdAverageScore=68):
         self.usableReadsExecuted = True
@@ -94,6 +91,8 @@ class sequenceData():
 
     def SequencePresenceTest(self):
         pass
+    
+    def extractReads(self):
 
     
     def generateReport(self):
