@@ -1,13 +1,14 @@
 import datetime
 
 class sequenceData():
-    def __init__(self, filePath, teardown=False):
+    def __init__(self, filePath, outputPath, teardown=False):
         self.filePath = filePath    # fastq.rtf file location
         self.teardown = teardown    # teardown flag 
         self.usableReadsExecuted = False
         self.currentTime = datetime.datetime.now()
         self.fastaqFile = open(self.filePath, 'r').readlines()[7:]
         self.fileName = self.filePath.split('/')[-1]
+        self.extractDNAReadsExecuted = False
 
     def __exit__(self):
         if self.teardown:
@@ -92,7 +93,32 @@ class sequenceData():
     def SequencePresenceTest(self):
         pass
     
-    def extractReads(self):
+    def extractDNAReads(self, fname, eliminateLowQReads=False):
+        SeqFlag = False
+        DNAReads = []
+        for line in self.fastaqFile:
+            if "length" in line:
+                readLength = line.split("length=")[-1]
+                readLength = int(readLength.split('\\')[0])
+                SeqFlag = True
+            elif SeqFlag:
+                DNAReads.append(line[:readLength])
+                SeqFlag = False
+            else:
+                continue
+        self.extractDNAReadsExecuted = True
+        self.DNAReads = DNAReads
+
+
+    def translateDNA2RNA(self, fname):
+        
+        if self.extractDNAReadsExecuted == False:
+            print("Error: In order to translate DNA to RNA from .fastaq file, method extractDNAReads() needs to be executed.")
+            return 0
+        
+        
+
+        
 
     
     def generateReport(self):
